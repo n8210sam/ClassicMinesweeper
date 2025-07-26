@@ -24,6 +24,7 @@ export default function MinesweeperApp() {
   const [gameState, setGameState] = useState<GameState>("playing")
   const [minesLeft, setMinesLeft] = useState(gameSettings.mines)
   const [firstClick, setFirstClick] = useState(true)
+  const [count, setCount] = useState(0) // New state for count
 
   // 初始化空白棋盤
   const initializeBoard = useCallback((rows: number, cols: number) => {
@@ -152,6 +153,7 @@ export default function MinesweeperApp() {
 
         return newBoard
       })
+      setCount((prevCount) => prevCount + 1) // Increment count on cell click
     },
     [gameState, firstClick, placeMines, revealCell, gameSettings],
   )
@@ -181,6 +183,7 @@ export default function MinesweeperApp() {
     setGameState("playing")
     setMinesLeft(gameSettings.mines)
     setFirstClick(true)
+    setCount(0) // Reset count on game reset
   }, [initializeBoard, gameSettings])
 
   // 改變難度
@@ -240,7 +243,7 @@ export default function MinesweeperApp() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">中文踩地雷</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">踩地雷</h1>
 
             <div className="flex flex-wrap items-center gap-4 mb-4">
               <div className="flex items-center gap-2">
@@ -318,6 +321,24 @@ export default function MinesweeperApp() {
           <div className="mt-6 text-sm text-gray-600 text-center space-y-1">
             <p>點擊揭開格子，長按或右鍵標記地雷</p>
             <p>當前難度: {difficulty === "beginner" ? "初級" : difficulty === "intermediate" ? "中級" : "高級"}</p>
+          </div>
+
+          <div className="mt-6 text-sm text-gray-600 text-center space-y-1">
+            <p>測試頁面</p>
+            <button
+              onClick={() => setCount(count + 1)}
+              style={{
+                padding: "10px 20px",
+                fontSize: "16px",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              點擊次數: {count}
+            </button>
           </div>
         </div>
       </div>
