@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "android": "cap run android",
+    "android:build": "cap build android",
     "build": "next build",
     "dev": "next dev",
-    "start": "next start"
+    "start": "next start",
+    "sync": "cap sync"
   },
   "dependencies": {
-    "@capacitor/android": "^5.6.0",
-    "@capacitor/app": "^5.0.6",
-    "@capacitor/core": "^5.6.0",
-    "@capacitor/splash-screen": "^5.0.6",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -60,7 +63,7 @@
     "vaul": "latest"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.6.0",
+    "@capacitor/cli": "^6.0.0",
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
