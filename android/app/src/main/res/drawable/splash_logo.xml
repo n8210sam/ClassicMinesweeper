@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- Mine circle background -->
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M60,20 C37.9,20 20,37.9 20,60 C20,82.1 37.9,100 60,100 C82.1,100 100,82.1 100,60 C100,37.9 82.1,20 60,20 Z" />
+    
+    <!-- Mine spikes -->
+    <path
+        android:fillColor="#1f2937"
+        android:pathData="M60,25 L65,35 L55,35 Z" />
+    <path
+        android:fillColor="#1f2937"
+        android:pathData="M60,95 L65,85 L55,85 Z" />
+    <path
+        android:fillColor="#1f2937"
+        android:pathData="M25,60 L35,65 L35,55 Z" />
+    <path
+        android:fillColor="#1f2937"
+        android:pathData="M95,60 L85,65 L85,55 Z" />
+    
+    <!-- Mine center -->
+    <circle
+        android:fillColor="#1f2937"
+        android:cx="60"
+        android:cy="60"
+        android:radius="15" />
+    
+    <!-- Flag -->
+    <path
+        android:fillColor="#ef4444"
+        android:pathData="M75,45 L90,45 L90,55 L85,50 L75,55 Z" />
+    <path
+        android:fillColor="#374151"
+        android:pathData="M75,40 L77,40 L77,65 L75,65 Z" />
+</vector>
