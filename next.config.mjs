@@ -12,8 +12,7 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
   distDir: 'out',
-  assetPrefix: './',
-  basePath: '',
+  // 移除可能導致問題的配置
 }
 
 export default nextConfig
