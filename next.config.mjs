@@ -1,18 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
-  // 移除可能導致問題的配置
+  }
 }
 
 export default nextConfig

@@ -1,13 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RotateCcw, Flag, Bomb, Settings } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type CellState = {
   isMine: boolean
@@ -18,24 +11,19 @@ type CellState = {
 
 type GameState = "playing" | "won" | "lost"
 
-type Difficulty = "beginner" | "intermediate" | "expert" | "custom"
-
 const DIFFICULTY_SETTINGS = {
   beginner: { rows: 9, cols: 9, mines: 10 },
   intermediate: { rows: 16, cols: 16, mines: 40 },
   expert: { rows: 16, cols: 30, mines: 99 },
-  custom: { rows: 10, cols: 10, mines: 15 },
 }
 
 export default function MinesweeperApp() {
-  const [difficulty, setDifficulty] = useState<Difficulty>("beginner")
-  const [customSettings, setCustomSettings] = useState(DIFFICULTY_SETTINGS.custom)
+  const [difficulty, setDifficulty] = useState<keyof typeof DIFFICULTY_SETTINGS>("beginner")
   const [gameSettings, setGameSettings] = useState(DIFFICULTY_SETTINGS.beginner)
   const [board, setBoard] = useState<CellState[][]>([])
   const [gameState, setGameState] = useState<GameState>("playing")
   const [minesLeft, setMinesLeft] = useState(gameSettings.mines)
   const [firstClick, setFirstClick] = useState(true)
-  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // 初始化空白棋盤
   const initializeBoard = useCallback((rows: number, cols: number) => {
@@ -195,30 +183,11 @@ export default function MinesweeperApp() {
     setFirstClick(true)
   }, [initializeBoard, gameSettings])
 
-  // 應用新設定
-  const applySettings = useCallback(() => {
-    let newSettings = gameSettings
-
-    if (difficulty === "custom") {
-      // 驗證自定義設定
-      const validRows = Math.max(5, Math.min(30, customSettings.rows))
-      const validCols = Math.max(5, Math.min(30, customSettings.cols))
-      const maxMines = Math.floor(validRows * validCols * 0.8)
-      const validMines = Math.max(1, Math.min(maxMines, customSettings.mines))
-
-      newSettings = {
-        rows: validRows,
-        cols: validCols,
-        mines: validMines,
-      }
-      setCustomSettings(newSettings)
-    } else {
-      newSettings = DIFFICULTY_SETTINGS[difficulty]
-    }
-
-    setGameSettings(newSettings)
-    setSettingsOpen(false)
-  }, [difficulty, customSettings, gameSettings])
+  // 改變難度
+  const changeDifficulty = (newDifficulty: keyof typeof DIFFICULTY_SETTINGS) => {
+    setDifficulty(newDifficulty)
+    setGameSettings(DIFFICULTY_SETTINGS[newDifficulty])
+  }
 
   // 初始化遊戲
   useEffect(() => {
@@ -227,9 +196,9 @@ export default function MinesweeperApp() {
 
   // 獲取格子顯示內容
   const getCellContent = (cell: CellState) => {
-    if (cell.isFlagged) return <Flag className="w-3 h-3 text-red-500" />
+    if (cell.isFlagged) return "🚩"
     if (!cell.isRevealed) return ""
-    if (cell.isMine) return <Bomb className="w-3 h-3 text-red-600" />
+    if (cell.isMine) return "💣"
     if (cell.neighborMines > 0) return cell.neighborMines
     return ""
   }
@@ -238,7 +207,7 @@ export default function MinesweeperApp() {
   const getCellStyle = (cell: CellState) => {
     const baseSize =
       gameSettings.cols > 16 ? "w-6 h-6 text-xs" : gameSettings.cols > 12 ? "w-7 h-7 text-sm" : "w-8 h-8 text-sm"
-    let baseStyle = `${baseSize} border border-gray-400 flex items-center justify-center font-bold select-none `
+    let baseStyle = `${baseSize} border border-gray-400 flex items-center justify-center font-bold select-none cursor-pointer `
 
     if (cell.isRevealed) {
       if (cell.isMine) {
@@ -269,191 +238,88 @@ export default function MinesweeperApp() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-lg">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-bold text-gray-800">踩地雷</CardTitle>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">中文踩地雷</h1>
 
-              <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2 bg-transparent">
-                    <Settings className="w-4 h-4" />
-                    設定
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>遊戲設定</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="difficulty">難度</Label>
-                      <Select value={difficulty} onValueChange={(value: Difficulty) => setDifficulty(value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="beginner">初級 (9×9, 10雷)</SelectItem>
-                          <SelectItem value="intermediate">中級 (16×16, 40雷)</SelectItem>
-                          <SelectItem value="expert">高級 (16×30, 99雷)</SelectItem>
-                          <SelectItem value="custom">自定義</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {difficulty === "custom" && (
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label htmlFor="rows">行數 (5-30)</Label>
-                            <Input
-                              id="rows"
-                              type="number"
-                              min="5"
-                              max="30"
-                              value={customSettings.rows}
-                              onChange={(e) =>
-                                setCustomSettings((prev) => ({
-                                  ...prev,
-                                  rows: Number.parseInt(e.target.value) || 10,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cols">列數 (5-30)</Label>
-                            <Input
-                              id="cols"
-                              type="number"
-                              min="5"
-                              max="30"
-                              value={customSettings.cols}
-                              onChange={(e) =>
-                                setCustomSettings((prev) => ({
-                                  ...prev,
-                                  cols: Number.parseInt(e.target.value) || 10,
-                                }))
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <Label htmlFor="mines">
-                            地雷數 (1-{Math.floor(customSettings.rows * customSettings.cols * 0.8)})
-                          </Label>
-                          <Input
-                            id="mines"
-                            type="number"
-                            min="1"
-                            max={Math.floor(customSettings.rows * customSettings.cols * 0.8)}
-                            value={customSettings.mines}
-                            onChange={(e) =>
-                              setCustomSettings((prev) => ({
-                                ...prev,
-                                mines: Number.parseInt(e.target.value) || 15,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <Button onClick={applySettings} className="w-full">
-                      應用設定
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Flag className="w-5 h-5 text-red-500" />
-                  <span className="font-semibold">{minesLeft}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {gameSettings.rows}×{gameSettings.cols}
-                </div>
+            <div className="flex flex-wrap items-center gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <span>🚩</span>
+                <span className="font-semibold">{minesLeft}</span>
               </div>
 
-              <Button
-                onClick={resetGame}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 bg-transparent"
+              <select
+                value={difficulty}
+                onChange={(e) => changeDifficulty(e.target.value as keyof typeof DIFFICULTY_SETTINGS)}
+                className="px-3 py-1 border border-gray-300 rounded"
               >
-                <RotateCcw className="w-4 h-4" />
+                <option value="beginner">初級 (9×9)</option>
+                <option value="intermediate">中級 (16×16)</option>
+                <option value="expert">高級 (16×30)</option>
+              </select>
+
+              <button onClick={resetGame} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                 重新開始
-              </Button>
+              </button>
             </div>
 
             {gameState === "won" && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded">🎉 恭喜獲勝！</div>
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+                🎉 恭喜獲勝！
+              </div>
             )}
 
             {gameState === "lost" && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">💥 遊戲結束！</div>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">💥 遊戲結束！</div>
             )}
-          </CardHeader>
+          </div>
 
-          <CardContent>
-            <div className="flex justify-center">
-              <div
-                className="inline-block bg-gray-500 p-2 rounded overflow-auto max-w-full"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${gameSettings.cols}, 1fr)`,
-                  gap: "1px",
-                }}
-              >
-                {board.map((row, rowIndex) =>
-                  row.map((cell, colIndex) => (
-                    <button
-                      key={`${rowIndex}-${colIndex}`}
-                      className={getCellStyle(cell)}
-                      onClick={() => handleCellClick(rowIndex, colIndex)}
-                      onContextMenu={(e) => {
-                        e.preventDefault()
+          <div className="flex justify-center">
+            <div
+              className="inline-block bg-gray-500 p-2 rounded overflow-auto max-w-full"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${gameSettings.cols}, 1fr)`,
+                gap: "1px",
+              }}
+            >
+              {board.map((row, rowIndex) =>
+                row.map((cell, colIndex) => (
+                  <button
+                    key={`${rowIndex}-${colIndex}`}
+                    className={getCellStyle(cell)}
+                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      handleCellLongPress(rowIndex, colIndex)
+                    }}
+                    onTouchStart={(e) => {
+                      const timer = setTimeout(() => {
                         handleCellLongPress(rowIndex, colIndex)
-                      }}
-                      onTouchStart={(e) => {
-                        const timer = setTimeout(() => {
-                          handleCellLongPress(rowIndex, colIndex)
-                        }, 500)
+                      }, 500)
 
-                        const cleanup = () => {
-                          clearTimeout(timer)
-                          e.target.removeEventListener("touchend", cleanup)
-                          e.target.removeEventListener("touchmove", cleanup)
-                        }
+                      const cleanup = () => {
+                        clearTimeout(timer)
+                        e.currentTarget.removeEventListener("touchend", cleanup)
+                        e.currentTarget.removeEventListener("touchmove", cleanup)
+                      }
 
-                        e.target.addEventListener("touchend", cleanup)
-                        e.target.addEventListener("touchmove", cleanup)
-                      }}
-                    >
-                      {getCellContent(cell)}
-                    </button>
-                  )),
-                )}
-              </div>
+                      e.currentTarget.addEventListener("touchend", cleanup)
+                      e.currentTarget.addEventListener("touchmove", cleanup)
+                    }}
+                  >
+                    {getCellContent(cell)}
+                  </button>
+                )),
+              )}
             </div>
+          </div>
 
-            <div className="mt-4 text-sm text-gray-600 text-center space-y-1">
-              <p>點擊揭開格子，長按標記地雷</p>
-              <p>
-                當前難度:{" "}
-                {difficulty === "beginner"
-                  ? "初級"
-                  : difficulty === "intermediate"
-                    ? "中級"
-                    : difficulty === "expert"
-                      ? "高級"
-                      : "自定義"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="mt-6 text-sm text-gray-600 text-center space-y-1">
+            <p>點擊揭開格子，長按或右鍵標記地雷</p>
+            <p>當前難度: {difficulty === "beginner" ? "初級" : difficulty === "intermediate" ? "中級" : "高級"}</p>
+          </div>
+        </div>
       </div>
     </div>
   )
